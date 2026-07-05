@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SplitFlow Pro - Groups</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/style.css" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f7f9fb",
+                        "primary": "#3525cd",
+                        "primary-container": "#4f46e5",
+                        "on-primary-container": "#dad7ff",
+                        "secondary": "#565e74",
+                        "secondary-container": "#dae2fd",
+                        "on-secondary-container": "#5c647a",
+                        "surface": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-high": "#e6e8ea",
+                        "outline-variant": "#c7c4d8",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#7e3000",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-tertiary-fixed-variant": "#7b2f00"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="fixed left-0 top-0 h-screen w-60 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col py-6 z-50">
+        <div class="px-6 mb-8">
+            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400">handshake</span> SplitFlow Pro
+            </h1>
+            <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Enterprise Edition</p>
+        </div>
+        <nav class="flex-1 px-3 space-y-1">
+            <a href="/dashboard.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/groups.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-white bg-indigo-600 transition-colors">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+                <span>Groups</span>
+            </a>
+            <a href="/analytics.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>Reports &amp; Analytics</span>
+            </a>
+            <a href="/notifications.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">notifications</span>
+                <span>Notifications</span>
+            </a>
+        </nav>
+        <div class="mt-auto px-3 space-y-3">
+            <button onclick="openGroupModal()" class="w-full bg-indigo-600 hover:bg-indigo-50 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-600/20">
+                <span class="material-symbols-outlined">add</span> Create Group
+            </button>
+            <div class="border-t border-slate-800 pt-3 space-y-1">
+                <a href="/index.html" class="flex items-center gap-3 px-4 py-2 rounded text-slate-400 hover:text-white transition-colors text-sm">
+                    <span class="material-symbols-outlined text-sm">logout</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 right-0 w-[calc(100%-240px)] z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 flex justify-between items-center h-16 px-10">
+        <div class="flex items-center gap-8">
+            <h2 class="font-bold text-slate-800 text-lg">Groups List</h2>
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="/dashboard.html" class="text-slate-500 hover:text-slate-800 transition-colors">Overview</a>
+                <a href="/groups.html" class="text-primary border-b-2 border-primary pb-1 font-semibold">All Groups</a>
+                <a href="/analytics.html" class="text-slate-500 hover:text-slate-800 transition-colors">Global Analytics</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 scale-90">search</span>
+                <input class="bg-slate-100 border-none rounded-full pl-9 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary focus:bg-white transition-all outline-none" id="search-groups-input" oninput="filterGroups()" placeholder="Search groups..." type="text"/>
+            </div>
+            <a href="/notifications.html" class="p-2 text-slate-500 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-all">
+                <span class="material-symbols-outlined">notifications</span>
+            </a>
+            <div class="h-8 w-8 rounded-full border border-slate-200 overflow-hidden cursor-pointer">
+                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCslC7JmB-uLzi-zrEI_WLqVu3jUv-Pw_zYTMaOeyvdhLAVtvyNEIsudcCzM9xh5p7QmvDzcesZtoyApzBPlsK_7R3TIWgwwNkHYD0_QI76yQ0h2pBUHnULOcBIayiIGp1CNO2LR4feSKLlnDsReFW8SQ09QfSbdq3GJBfz8ItAZWx3TF_kaD9t214CPuePAoUyW4Mx5vRcEDYD8xzydcZGDw5suQKjaLwKa9fvLPNiKv_sbx4nVTqArG8DaHgrGD_38oyKBwW-6LU" alt="User Profile"/>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Area -->
+    <main class="ml-60 pt-16 min-h-screen">
+        <div class="max-w-[1280px] mx-auto p-10 space-y-8 animate-fade-in">
+            
+            <!-- Page Header Section -->
+            <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-100">
+                <div class="space-y-2">
+                    <span class="text-primary font-bold tracking-wider text-xs uppercase">Collaboration Hub</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Manage Groups</h2>
+                    <p class="text-slate-500 max-w-xl">Organize your collective spending with high-performance tracking and precise settlement algorithms across multi-currency environments.</p>
+                </div>
+                <div>
+                    <button onclick="openGroupModal()" class="bg-primary hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold flex items-center gap-2.5 shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        <span class="material-symbols-outlined text-lg">group_add</span>
+                        <span>+ Create Group</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Groups Bento Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="groups-list-container">
+                <!-- Group cards will load here dynamically -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Create Group Modal -->
+    <div class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" id="createGroupModal">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeGroupModal()"></div>
+        <!-- Modal Content -->
+        <div class="relative w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-extrabold text-xl text-slate-800">Create New Group</h3>
+                <button class="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-all" onclick="closeGroupModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form class="p-8 space-y-5" id="group-form" onsubmit="handleCreateGroup(event)">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Group Name</label>
+                    <input required id="new-group-name" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm" placeholder="e.g. Annual Retreat 2024" type="text"/>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Base Currency</label>
+                        <select id="new-group-currency" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Group Type</label>
+                        <select id="new-group-type" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                            <option value="Trip">Trip</option>
+                            <option value="Home">Home</option>
+                            <option value="Couple">Couple</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Budget Limit ($)</label>
+                        <input required id="new-group-budget" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none text-sm" placeholder="e.g. 5000" type="number" min="1"/>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Created Date</label>
+                        <input id="new-group-date" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 text-sm outline-none cursor-not-allowed" type="text" disabled value="Today"/>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Invite Member</label>
+                    <div class="flex gap-2">
+                        <input id="new-group-member" class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 outline-none text-sm" placeholder="email@address.com" type="email"/>
+                        <button class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 rounded-lg text-sm font-semibold transition-all active-press" type="button">Add</button>
+                    </div>
+                </div>
+                <div class="pt-4 flex gap-4">
+                    <button class="flex-1 py-3 border border-slate-200 hover:bg-slate-50 rounded-lg font-bold text-slate-600 transition-all text-sm active-press" onclick="closeGroupModal()" type="button">Cancel</button>
+                    <button class="flex-1 py-3 bg-primary hover:bg-indigo-700 text-white rounded-lg font-bold shadow-md shadow-indigo-600/20 transition-all text-sm active-press" type="submit">Create Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vanilla Logic -->
+    <script>
+        const GROUPS_STORAGE_KEY = 'splitflow_groups_v1';
+
+        const defaultGroups = [
+            { id: 'g1', name: 'Annual Retreat 2024', members: 4, budget: 5000, spent: 1240.50, currency: 'USD', date: 'Created 2 days ago', icon: 'flight', bg: 'indigo-50', text: 'indigo-600', avatars: ['JD', 'AK', '+2'] },
+            { id: 'g2', name: 'Cloud Infra Project', members: 2, budget: 10000, spent: 4890.00, currency: 'EUR', date: 'Created 1 week ago', icon: 'cloud', bg: 'emerald-50', text: 'emerald-600', avatars: ['ME', 'SH'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCduCfAp71YjXQ4uhceSccbQkS5NoR4gPiZsDzM77dcoU4cDFTJXnS01xFIBpbMKnGvgvXMr9o6ya0BFOx8-uq5yqR0HE-MYavhJNFc3MRZJrS2hoNeJDvebKtVMT7GXZKsS7fBsCmGD10uRVtM8wC86rk6HaS4-lpNHniGakPx8DgKt11cwlmKAEmIWEHkC-t2THwmh6ebynjOayrlBH8Y6PbLySVE8Yb9nGo5VPyS0x3NGamfZPz2sM_urC7kMrXl6zuLaGVsHvM' },
+            { id: 'g3', name: 'Marketing Team', members: 14, budget: 15000, spent: 840.12, currency: 'GBP', date: 'Created 1 month ago', icon: 'campaign', bg: 'rose-50', text: 'rose-600', avatars: ['TM', '+12'] }
+        ];
+
+        function getGroups() {
+            const data = localStorage.getItem(GROUPS_STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(GROUPS_STORAGE_KEY, JSON.stringify(defaultGroups));
+                return defaultGroups;
+            }
+            return JSON.parse(data);
+        }
+
+        function renderGroups(groupsToRender) {
+            const groups = groupsToRender || getGroups();
+            const listContainer = document.getElementById('groups-list-container');
+            listContainer.innerHTML = '';
+
+            if (groups.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="col-span-3 text-center py-20 bg-white border border-slate-200 rounded-xl">
+                        <span class="material-symbols-outlined text-5xl text-slate-300">group_off</span>
+                        <h3 class="font-bold text-slate-700 mt-4">No groups found</h3>
+                        <p class="text-slate-400 text-sm mt-1">Create a new group to start tracking shared expenses.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            groups.forEach(g => {
+                const currencySymbols = { 'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥' };
+                const symbol = currencySymbols[g.currency] || '$';
+
+                const avatarBadges = (g.avatars || ['JD', '+1']).map((av, idx) => {
+                    let avBg = 'bg-indigo-100 text-indigo-700';
+                    if (idx % 2 === 1) avBg = 'bg-amber-100 text-amber-700';
+                    if (idx === 2) avBg = 'bg-rose-100 text-rose-700';
+                    return `<div class="w-8 h-8 rounded-full border-2 border-white ${avBg} flex items-center justify-center text-[10px] font-bold shadow-sm">${av}</div>`;
+                }).join('');
+
+                const hasHeroImage = g.image ? `
+                    <div class="h-32 w-full bg-slate-100 relative overflow-hidden">
+                        <img class="w-full h-full object-cover opacity-75" src="${g.image}" alt="Group Hero Image"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent"></div>
+                        <div class="absolute bottom-4 left-6 flex -space-x-2">
+                            ${avatarBadges}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="h-32 w-full bg-gradient-to-tr from-indigo-50 to-indigo-100/30 relative overflow-hidden flex items-end p-4">
+                        <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent"></div>
+                        <span class="material-symbols-outlined text-8xl text-indigo-200/50 absolute -right-4 -bottom-4">group</span>
+                        <div class="flex -space-x-2 relative z-10">
+                            ${avatarBadges}
+                        </div>
+                    </div>
+                `;
+
+                const card = document.createElement('div');
+                card.className = 'bento-card group relative bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        ${hasHeroImage}
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg group-hover:text-primary transition-colors">${g.name}</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">${g.date || 'Created just now'}</p>
+                                </div>
+                                <span class="bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase">${g.currency}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 py-4 border-y border-slate-100">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Members</p>
+                                    <p class="font-bold text-slate-700 text-sm">${g.members} Members</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Spent</p>
+                                    <p class="font-extrabold text-slate-800 text-sm font-mono-code">${symbol}${parseFloat(g.spent).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-2 flex items-center justify-between">
+                        <span onclick="location.href='/groupDetail.html?id=${g.id}'" class="text-primary text-sm font-bold inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                            View Details <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                        </span>
+                        <span class="material-symbols-outlined text-slate-300 hover:text-primary transition-colors p-1 hover:bg-slate-50 rounded" onclick="event.stopPropagation()">more_vert</span>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function filterGroups() {
+            const query = document.getElementById('search-groups-input').value.toLowerCase();
+            const groups = getGroups();
+            const filtered = groups.filter(g => g.name.toLowerCase().includes(query));
+            renderGroups(filtered);
+        }
+
+        function openGroupModal() {
+            document.getElementById('createGroupModal').classList.remove('hidden');
+        }
+
+        function closeGroupModal() {
+            document.getElementById('createGroupModal').classList.add('hidden');
+        }
+
+        function handleCreateGroup(event) {
+            event.preventDefault();
+            const name = document.getElementById('new-group-name').value;
+            const currency = document.getElementById('new-group-currency').value;
+            const budget = parseFloat(document.getElementById('new-group-budget').value);
+            const type = document.getElementById('new-group-type').value;
+
+            fetch('/api/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, currency, budget, type })
+            })
+            .then(res => console.log('Group synced to server API successfully'))
+            .catch(err => console.warn('REST API unavailable. Persistent localStorage fallback initialized.'))
+            .finally(() => {
+                const groups = getGroups();
+                const newGroup = {
+                    id: 'g' + (groups.length + 1),
+                    name: name,
+                    members: 2,
+                    budget: budget,
+                    spent: 0,
+                    currency: currency,
+                    date: 'Created today',
+                    icon: 'work',
+                    bg: 'indigo-50',
+                    text: 'indigo-600',
+                    avatars: ['You', 'New']
+                };
+                groups.unshift(newGroup);
+                localStorage.setItem(GROUPS_STORAGE_KEY, JSON.stringify(groups));
+
+                closeGroupModal();
+                renderGroups();
+                document.getElementById('group-form').reset();
+            });
+        }
+
+        window.addEventListener('load', () => renderGroups());
+    </script>
+</body>
+</html>

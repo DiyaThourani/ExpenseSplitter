@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SplitFlow Pro - Inbox</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/style.css" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f7f9fb",
+                        "primary": "#3525cd",
+                        "primary-container": "#4f46e5",
+                        "on-primary-container": "#dad7ff",
+                        "secondary": "#565e74",
+                        "secondary-container": "#dae2fd",
+                        "on-secondary-container": "#5c647a",
+                        "surface": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-high": "#e6e8ea",
+                        "outline-variant": "#c7c4d8",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#7e3000",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-tertiary-fixed-variant": "#7b2f00"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="fixed left-0 top-0 h-screen w-60 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col py-6 z-50">
+        <div class="px-6 mb-8">
+            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400">handshake</span> SplitFlow Pro
+            </h1>
+            <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Enterprise Edition</p>
+        </div>
+        <nav class="flex-1 px-3 space-y-1">
+            <a href="/dashboard.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/groups.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">group</span>
+                <span>Groups</span>
+            </a>
+            <a href="/analytics.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>Reports &amp; Analytics</span>
+            </a>
+            <a href="/notifications.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-white bg-indigo-600 transition-colors">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+                <span>Notifications</span>
+            </a>
+        </nav>
+        <div class="mt-auto px-6 py-4">
+            <p class="text-xs text-slate-500 font-mono-code">Inbox v1.2</p>
+        </div>
+    </aside>
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 right-0 w-[calc(100%-240px)] z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 flex justify-between items-center h-16 px-10">
+        <div class="flex items-center gap-8">
+            <h2 class="font-bold text-slate-800 text-lg">Activity Feed</h2>
+            <nav class="hidden md:flex gap-6 text-sm font-medium">
+                <a href="/dashboard.html" class="text-slate-500 hover:text-slate-800 transition-colors">Overview</a>
+                <a href="/groups.html" class="text-slate-500 hover:text-slate-800 transition-colors">All Groups</a>
+                <a href="/notifications.html" class="text-primary border-b-2 border-primary pb-1 font-semibold">Inbox Feed</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 scale-90">search</span>
+                <input class="bg-slate-100 border-none rounded-full pl-9 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary focus:bg-white transition-all outline-none" id="search-inbox-input" oninput="filterNotifications()" placeholder="Search inbox..." type="text"/>
+            </div>
+            <div class="h-8 w-8 rounded-full border border-slate-200 overflow-hidden cursor-pointer">
+                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCslC7JmB-uLzi-zrEI_WLqVu3jUv-Pw_zYTMaOeyvdhLAVtvyNEIsudcCzM9xh5p7QmvDzcesZtoyApzBPlsK_7R3TIWgwwNkHYD0_QI76yQ0h2pBUHnULOcBIayiIGp1CNO2LR4feSKLlnDsReFW8SQ09QfSbdq3GJBfz8ItAZWx3TF_kaD9t214CPuePAoUyW4Mx5vRcEDYD8xzydcZGDw5suQKjaLwKa9fvLPNiKv_sbx4nVTqArG8DaHgrGD_38oyKBwW-6LU" alt="User Profile"/>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="ml-60 pt-16 min-h-screen">
+        <div class="max-w-[1280px] mx-auto p-10 space-y-8 animate-fade-in">
+            
+            <!-- Page Header -->
+            <section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-100">
+                <div class="space-y-2">
+                    <span class="text-primary font-bold tracking-wider text-xs uppercase">MESSAGES</span>
+                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Inbox</h2>
+                    <p class="text-slate-500 max-w-xl">Stay up to date with activity, settlements, comments, and budget alerts across all active spending groups.</p>
+                </div>
+                <div>
+                    <button onclick="markAllAsRead()" class="px-5 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 transition-all active-press flex items-center gap-1.5 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">checklist</span>
+                        <span>Mark All as Read</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-12 gap-6">
+                
+                <!-- Left Filters Panel (3 columns) -->
+                <nav class="col-span-12 lg:col-span-3 space-y-2">
+                    <button id="tab-all" onclick="setFilter('all')" class="w-full text-left flex justify-between items-center px-4 py-3 bg-indigo-50 border border-primary/20 hover:bg-indigo-100/50 text-indigo-700 font-bold rounded-xl transition-all text-sm">
+                        <span class="flex items-center gap-2.5"><span class="material-symbols-outlined scale-90">inbox</span> All Notifications</span>
+                        <span class="bg-indigo-100 px-2 py-0.5 rounded-full text-xs font-mono-code" id="cnt-all">12</span>
+                    </button>
+                    <button id="tab-activity" onclick="setFilter('activity')" class="w-full text-left flex justify-between items-center px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl transition-all text-sm">
+                        <span class="flex items-center gap-2.5"><span class="material-symbols-outlined scale-90">dashboard</span> Activity</span>
+                        <span class="bg-slate-100 px-2 py-0.5 rounded-full text-xs font-mono-code" id="cnt-activity">8</span>
+                    </button>
+                    <button id="tab-settlements" onclick="setFilter('settlements')" class="w-full text-left flex justify-between items-center px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl transition-all text-sm">
+                        <span class="flex items-center gap-2.5"><span class="material-symbols-outlined scale-90">handshake</span> Settlements</span>
+                        <span class="bg-slate-100 px-2 py-0.5 rounded-full text-xs font-mono-code" id="cnt-settlements">3</span>
+                    </button>
+                    <button id="tab-alerts" onclick="setFilter('alerts')" class="w-full text-left flex justify-between items-center px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl transition-all text-sm">
+                        <span class="flex items-center gap-2.5"><span class="material-symbols-outlined scale-90">warning</span> System Alerts</span>
+                        <span class="bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full text-xs font-mono-code" id="cnt-alerts">1</span>
+                    </button>
+                </nav>
+
+                <!-- Right Notifications Stream (9 columns) -->
+                <div class="col-span-12 lg:col-span-9 space-y-4" id="notifications-stream">
+                    <!-- Notifications Cards will load here dynamically -->
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="ml-60 p-8 border-t border-slate-200 bg-white flex justify-between items-center text-xs text-slate-400">
+        <p>© 2026 SplitFlow Pro Enterprise Systems. Synchronized.</p>
+        <div class="flex gap-4">
+            <a class="hover:text-primary" href="#">Privacy Policy</a>
+            <a class="hover:text-primary" href="#">Terms</a>
+        </div>
+    </footer>
+
+    <!-- Vanilla Code -->
+    <script>
+        const NOTIFICATIONS_STORAGE_KEY = 'splitflow_notifications_v1';
+
+        const defaultNotifications = [
+            { id: 'n1', type: 'settlements', desc: 'Alice Smith recorded a settlement of $120.50 for Paris Trip 2024', date: '10m ago', unread: true, icon: 'handshake', iconColor: 'bg-emerald-50 text-emerald-600' },
+            { id: 'n2', type: 'alerts', desc: 'Winter Trip 2024 has exceeded 90% of its total budget limit', date: '1h ago', unread: true, icon: 'warning', iconColor: 'bg-rose-50 text-rose-600', link: 'Adjust Budget', linkHref: '/groupDetail.html' },
+            { id: 'n3', type: 'activity', desc: "John Doe commented: 'I added the receipt for Airbnb, let me know if it looks correct'", date: 'Yesterday', unread: false, icon: 'chat_bubble', iconColor: 'bg-blue-50 text-blue-600' },
+            { id: 'n4', type: 'activity', desc: 'Marketing Campaign Q4 group was successfully archived by Alex Rivera', date: '3 days ago', unread: false, icon: 'history', iconColor: 'bg-slate-100 text-slate-500' }
+        ];
+
+        let currentFilter = 'all';
+
+        function getNotifications() {
+            const data = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
+            if (!data) {
+                localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(defaultNotifications));
+                return defaultNotifications;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveNotifications(arr) {
+            localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(arr));
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Adjust visual states of tabs
+            const tabs = ['all', 'activity', 'settlements', 'alerts'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === filter) {
+                    btn.className = "w-full text-left flex justify-between items-center px-4 py-3 bg-indigo-50 border border-primary/20 text-indigo-700 font-bold rounded-xl transition-all text-sm";
+                } else {
+                    btn.className = "w-full text-left flex justify-between items-center px-4 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl transition-all text-sm";
+                }
+            });
+
+            renderInbox();
+        }
+
+        function renderInbox() {
+            const list = getNotifications();
+            const container = document.getElementById('notifications-stream');
+            container.innerHTML = '';
+
+            // Calculate counters
+            document.getElementById('cnt-all').innerText = list.length;
+            document.getElementById('cnt-activity').innerText = list.filter(n => n.type === 'activity').length;
+            document.getElementById('cnt-settlements').innerText = list.filter(n => n.type === 'settlements').length;
+            document.getElementById('cnt-alerts').innerText = list.filter(n => n.type === 'alerts').length;
+
+            const filtered = list.filter(n => {
+                if (currentFilter === 'all') return true;
+                return n.type === currentFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 bg-white border border-slate-200 rounded-xl">
+                        <span class="material-symbols-outlined text-5xl text-slate-300">mail_outline</span>
+                        <h3 class="font-bold text-slate-700 mt-4">Inbox is clean</h3>
+                        <p class="text-slate-400 text-sm mt-1">No notifications match this category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(n => {
+                const card = document.createElement('div');
+                // If unread, append left-accented border
+                const borderAccent = n.unread ? 'border-l-4 border-indigo-600 pl-5' : 'pl-6';
+                const bgClass = n.unread ? 'bg-white font-semibold' : 'bg-white opacity-85';
+
+                card.className = `${bgClass} border border-slate-200 rounded-xl p-5 ${borderAccent} flex justify-between items-start gap-4 transition-all hover:shadow-md relative`;
+                
+                let linkCode = '';
+                if (n.link) {
+                    linkCode = `<a href="${n.linkHref || '#'}" class="text-xs text-primary font-extrabold hover:underline block mt-2">${n.link}</a>`;
+                }
+
+                let readButtonCode = '';
+                if (n.unread) {
+                    readButtonCode = `
+                        <button onclick="markAsRead('${n.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded font-bold transition-colors">
+                            Mark Read
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg ${n.iconColor || 'bg-slate-100'} flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined">${n.icon || 'notifications'}</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-800 text-sm leading-relaxed">${n.desc}</p>
+                            <p class="text-xs text-slate-400 mt-1 font-mono-code">${n.date}</p>
+                            ${linkCode}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${readButtonCode}
+                        <button onclick="deleteNotification('${n.id}')" class="text-slate-300 hover:text-rose-600 transition-colors p-1 rounded hover:bg-slate-50">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function markAsRead(id) {
+            const list = getNotifications();
+            const target = list.find(n => n.id === id);
+            if (target) {
+                target.unread = false;
+                saveNotifications(list);
+                renderInbox();
+            }
+        }
+
+        function markAllAsRead() {
+            const list = getNotifications();
+            list.forEach(n => n.unread = false);
+            saveNotifications(list);
+            renderInbox();
+        }
+
+        function deleteNotification(id) {
+            let list = getNotifications();
+            list = list.filter(n => n.id !== id);
+            saveNotifications(list);
+            renderInbox();
+        }
+
+        function filterNotifications() {
+            const query = document.getElementById('search-inbox-input').value.toLowerCase();
+            const list = getNotifications();
+            const filtered = list.filter(n => n.desc.toLowerCase().includes(query));
+            
+            // Render directly bypass category filter
+            const container = document.getElementById('notifications-stream');
+            container.innerHTML = '';
+            filtered.forEach(n => {
+                const card = document.createElement('div');
+                const borderAccent = n.unread ? 'border-l-4 border-indigo-600 pl-5' : 'pl-6';
+                card.className = `bg-white border border-slate-200 rounded-xl p-5 ${borderAccent} flex justify-between items-start gap-4 transition-all hover:shadow-md relative`;
+                card.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg ${n.iconColor} flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined">${n.icon}</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-800 text-sm leading-relaxed">${n.desc}</p>
+                            <p class="text-xs text-slate-400 mt-1 font-mono-code">${n.date}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            renderInbox();
+            
+            // Sync with real REST API endpoint
+            fetch('/api/notifications')
+            .then(res => res.json())
+            .then(data => console.log('REST API notification sync completed:', data))
+            .catch(err => console.warn('REST API connection down. Running in sandbox persistent mode.'));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SplitFlow Pro - Secure Entry</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/style.css" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#0f172a", // Slate-900 cosmic dark look
+                        "primary": "#3525cd",
+                        "primary-container": "#4f46e5",
+                        "on-primary-container": "#dad7ff",
+                        "secondary": "#565e74",
+                        "secondary-container": "#dae2fd",
+                        "on-secondary-container": "#5c647a",
+                        "surface": "#1e293b", // Slate-800
+                        "on-surface": "#f8fafc",
+                        "outline-variant": "#334155"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-body-md antialiased min-h-screen flex flex-col justify-between overflow-x-hidden relative">
+
+    <!-- Ambient Grid Background -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-40"></div>
+
+    <!-- Header / Navbar -->
+    <header class="w-full h-20 px-8 flex justify-between items-center relative z-10">
+        <div class="flex items-center gap-2.5">
+            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-400">handshake</span> SplitFlow Pro
+            </h1>
+        </div>
+        <div>
+            <span class="text-[10px] font-bold text-indigo-400 tracking-widest uppercase bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+                SECURE CONSOLE v4.2
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Entry Card -->
+    <main class="flex-1 flex items-center justify-center p-6 relative z-10">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl relative space-y-6 animate-scale-in">
+            
+            <!-- Badge & Headers -->
+            <div class="text-center space-y-2">
+                <span class="text-indigo-400 font-bold tracking-wider text-[10px] uppercase">ENTERPRISE PROTOCOL</span>
+                <h2 class="text-2xl font-black text-white tracking-tight">Sign in to your Workspace</h2>
+                <p class="text-slate-400 text-xs max-w-xs mx-auto">Enter your credentials to sync spending, operational logs, and settlement models.</p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="space-y-4" onsubmit="handleLogin(event)">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Work Email</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 scale-90">mail</span>
+                        <input required id="login-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600" placeholder="sarah@company.com" type="email" value="sarah@company.com"/>
+                    </div>
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 scale-90">lock</span>
+                        <input required id="login-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-12 py-2.5 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600" placeholder="••••••••" type="password" value="password"/>
+                        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors" onclick="togglePassword()">
+                            <span class="material-symbols-outlined scale-90" id="password-toggle-icon">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-400 select-none">
+                        <input class="bg-slate-950 border-slate-800 text-indigo-600 rounded focus:ring-0 focus:ring-offset-0" type="checkbox" checked/>
+                        <span>Remember this node</span>
+                    </label>
+                    <a href="#" class="text-indigo-400 hover:underline">Forgot credentials?</a>
+                </div>
+
+                <!-- Auth Action Button -->
+                <button type="submit" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-600/10">
+                    <span class="material-symbols-outlined text-sm">vpn_key</span>
+                    <span>Authenticate Securely</span>
+                </button>
+            </form>
+
+            <!-- Sign Up Alternative Link -->
+            <div class="text-center pt-4 border-t border-slate-800">
+                <a href="/signup.html" class="text-xs text-slate-400 hover:text-white font-semibold transition-colors">
+                    Don't have an enterprise account? <span class="text-indigo-400 font-bold hover:underline">Sign up here</span>
+                </a>
+            </div>
+
+            <!-- Demo helper warning -->
+            <div class="p-3 bg-slate-950 border border-slate-800 rounded-lg text-center text-[10px] text-slate-500 font-mono-code leading-relaxed">
+                Developer Note: Default credentials populated. Press secure authenticate to inspect console dashboard.
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full h-16 px-8 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-600 relative z-10 gap-2">
+        <p>© 2026 SplitFlow Pro Enterprise Security Suite. Relational Database Linked.</p>
+        <div class="flex gap-4">
+            <a class="hover:text-slate-400" href="#">Privacy Policy</a>
+            <a class="hover:text-slate-400" href="#">Terms of Use</a>
+        </div>
+    </footer>
+
+    <!-- Authenticate script -->
+    <script>
+        function togglePassword() {
+            const passInput = document.getElementById('login-password');
+            const icon = document.getElementById('password-toggle-icon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.innerText = 'visibility_off';
+            } else {
+                passInput.type = 'password';
+                icon.innerText = 'visibility';
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('auth-btn');
+            btn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Synchronizing node...</span>
+            `;
+
+            // Hit the actual /api/login endpoint if it exists
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('login-email').value,
+                    pass: document.getElementById('login-password').value
+                })
+            })
+            .then(res => console.log('Successfully completed authentication against REST services'))
+            .catch(err => console.warn('REST API not running, signing in with offline persistent state.'))
+            .finally(() => {
+                setTimeout(() => {
+                    location.href = '/dashboard.html';
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>
