@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ExpenseSync | Groups Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#4d44e3",
+                        "tertiary-fixed": "#ffdbcc",
+                        "error-container": "#93000a",
+                        "on-background": "#d8e3fb",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-secondary-fixed-variant": "#3e465b",
+                        "success": "#15803d",
+                        "on-surface": "#d8e3fb",
+                        "surface-container-high": "#1f2a3c",
+                        "on-secondary": "#283044",
+                        "on-primary": "#1d00a5",
+                        "secondary-fixed": "#dae2fc",
+                        "surface-container": "#152031",
+                        "outline-variant": "#464555",
+                        "primary-container": "#4f46e5",
+                        "secondary-container": "#dae2fd",
+                        "surface-tint": "#c3c0ff",
+                        "on-tertiary-fixed": "#351000",
+                        "tertiary": "#ffb694",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "background": "#081425",
+                        "error": "#ba1a1a",
+                        "primary": "#c3c0ff",
+                        "on-error": "#690005",
+                        "surface-dim": "#081425",
+                        "on-secondary-container": "#adb5ce",
+                        "secondary": "#bec6e0",
+                        "surface-container-highest": "#2a3548",
+                        "inverse-on-surface": "#263143",
+                        "surface-variant": "#2a3548",
+                        "outline": "#918fa1",
+                        "on-tertiary-container": "#ff9f72",
+                        "background-deep": "#0f172a",
+                        "on-primary-container": "#b1afff",
+                        "on-primary-fixed": "#0f0069",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "surface-container-lowest": "#040e1f",
+                        "primary-fixed": "#e2dfff",
+                        "on-surface-variant": "#c7c4d8",
+                        "on-secondary-fixed": "#131b2e",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "tertiary-container": "#7d3000",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary": "#571f00",
+                        "inverse-surface": "#d8e3fb",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "surface": "#081425",
+                        "slate-950": "#020617",
+                        "surface-bright": "#2f3a4c",
+                        "surface-container-low": "#111c2d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "form-gap": "1rem",
+                        "card-padding": "1.5rem",
+                        "container-gutter": "2.5rem",
+                        "header-height": "4rem",
+                        "sidebar-width": "15rem",
+                        "element-tight": "0.375rem"
+                    },
+                    "fontFamily": {
+                        "data-mono": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "stats-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "micro-utility": ["JetBrains Mono"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                        "stats-lg": ["30px", {"lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "display-lg": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "micro-utility": ["10px", {"lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #081425;
+            color: #d8e3fb;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .background-mesh {
+            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1) 0%, rgba(8, 20, 37, 1) 100%);
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 64px 64px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab-glow {
+            box-shadow: 0 0 20px rgba(195, 192, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden min-h-screen background-mesh">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-sidebar-width fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-container-gutter z-50">
+<div class="px-6 mb-10">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ExpenseSync</h1>
+<p class="font-micro-utility text-micro-utility uppercase text-outline tracking-widest mt-1">Enterprise Tier</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-surface-container-high text-on-surface-variant group" href="dashboard.html">
+<span class="material-symbols-outlined group-hover:text-primary">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container-high text-primary font-bold border-r-2 border-primary active-tab-glow" href="groups.html">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-surface-container-high text-on-surface-variant group" href="analytics.html">
+<span class="material-symbols-outlined group-hover:text-primary">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors hover:bg-surface-container-high text-on-surface-variant group" href="notifications.html">
+<span class="material-symbols-outlined group-hover:text-primary">notifications</span>
+<span class="font-label-md text-label-md">Notifications</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-primary-container text-white py-3 rounded-xl font-bold hover:shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all active:scale-95 duration-100" onclick="openModal()">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label-md text-label-md">Create Group</span>
+</button>
+</div>
+</aside>
+<!-- Top Navigation -->
+<header class="fixed top-0 right-0 w-[calc(100%-15rem)] h-header-height z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant flex justify-between items-center px-container-gutter">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Spending Groups</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline scale-90">search</span>
+<input class="bg-slate-800 border-none rounded-full pl-10 pr-4 py-2 w-64 text-sm focus:ring-1 focus:ring-primary text-on-surface-variant" placeholder="Search groups..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-opacity" onclick="window.location.href='notifications.html'">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm cursor-pointer" onclick="logout()" id="profile-initials" title="Click to log out">—</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[15rem] pt-header-height min-h-screen p-container-gutter">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-micro-utility text-micro-utility text-primary uppercase tracking-[0.2em]">Active Portfolios</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-background">Management Hub</h1>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform" onclick="openModal()">
+<span class="material-symbols-outlined">group_add</span>
+<span class="font-label-md text-label-md">Create Group</span>
+</button>
+</div>
+<!-- Groups Grid -->
+<div class="bento-grid" id="groupsContainer">
+<!-- Loading State -->
+<div class="col-span-full py-20 flex flex-col items-center justify-center opacity-50">
+<div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+<p class="font-label-md">Synchronizing with ledger...</p>
+</div>
+</div>
+</main>
+<!-- Create Group Modal -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center px-4" id="createGroupModal">
+<div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onclick="closeModal()"></div>
+<div class="relative w-full max-w-xl glass-panel rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+<div class="p-card-padding border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm">Create New Group</h3>
+<button class="text-outline hover:text-on-surface" onclick="closeModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<form class="p-card-padding space-y-6" id="groupForm">
+<div>
+<label class="font-micro-utility text-micro-utility text-outline uppercase block mb-2">Group Name</label>
+<input class="w-full bg-slate-800 border-outline-variant rounded-xl text-on-surface focus:ring-primary focus:border-primary px-4 py-3" name="name" placeholder="Enter group name..." required="" type="text"/>
+</div>
+<div>
+<label class="font-micro-utility text-micro-utility text-outline uppercase block mb-2">Currency</label>
+<input class="w-full bg-slate-800 border-outline-variant rounded-xl text-on-surface focus:ring-primary focus:border-primary px-4 py-3" name="currency" placeholder="e.g. USD" required="" type="text"/>
+</div>
+<div>
+<label class="font-micro-utility text-micro-utility text-outline uppercase block mb-2">Initial Members (Emails)</label>
+<div class="flex gap-2">
+<input class="flex-1 bg-slate-800 border-outline-variant rounded-xl text-on-surface focus:ring-primary focus:border-primary px-4 py-3" id="memberEmailInput" placeholder="colleague@example.com" type="email"/>
+<button class="bg-surface-container-highest px-4 rounded-xl border border-outline-variant" type="button" onclick="addMemberChip()">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mt-3" id="memberChips"></div>
+</div>
+<div class="pt-4 flex gap-4">
+<button class="flex-1 py-3 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-white/5" onclick="closeModal()" type="button">Cancel</button>
+<button class="flex-1 py-3 rounded-xl bg-primary text-on-primary font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all" id="submitBtn" type="submit">Create Group</button>
+</div>
+</form>
+</div>
+</div>
+<script>
+        // IMPORTANT: paste your backend's public Codespace URL here
+        const API_URL = "PASTE_YOUR_PORT_3000_URL_HERE";
+
+        function getCurrentUser() {
+          const stored = sessionStorage.getItem('currentUser');
+          return stored ? JSON.parse(stored) : null;
+        }
+        const currentUser = getCurrentUser();
+        if (!currentUser) { window.location.href = 'index.html'; }
+        function logout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+        function initials(name) {
+          if (!name) return '?';
+          return name.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+        }
+
+        async function apiCall(path, options = {}) {
+          const res = await fetch(`${API_URL}${path}`, { headers: { 'Content-Type': 'application/json' }, ...options });
+          let data = null;
+          try { data = await res.json(); } catch (e) {}
+          if (!res.ok) throw new Error((data && data.error) || 'Request failed');
+          return data;
+        }
+
+        const groupsContainer = document.getElementById('groupsContainer');
+        let memberEmails = [];
+
+        async function fetchGroups() {
+            try {
+                const groups = await apiCall(`/groups?user_id=${currentUser.user_id}`);
+                renderGroups(groups || []);
+            } catch (error) {
+                console.error('Error fetching groups:', error);
+                groupsContainer.innerHTML = `
+                    <div class="col-span-full py-10 text-center">
+                        <p class="text-error mb-4">Synchronization failed: ${error.message}</p>
+                        <button onclick="fetchGroups()" class="text-primary font-bold underline">Retry Sync</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function renderGroups(groups) {
+            let html = groups.map(group => `
+                <div class="glass-panel rounded-2xl overflow-hidden group hover:border-primary/40 transition-all duration-300 cursor-pointer" onclick="goToGroup(${group.group_id}, '${group.group_name.replace(/'/g, "\\'")}')">
+                    <div class="h-24 w-full relative bg-gradient-to-br from-primary-container/40 to-slate-900 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl text-primary/70">hub</span>
+                        <div class="absolute bottom-3 left-4">
+                            <div class="bg-primary/20 backdrop-blur-md px-2 py-1 rounded text-primary font-micro-utility text-[10px] border border-primary/30 uppercase">${group.currency}</div>
+                        </div>
+                    </div>
+                    <div class="p-card-padding">
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">${group.group_name}</h3>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant mb-6" id="group-meta-${group.group_id}">Loading details…</p>
+                        <div class="flex justify-between items-center pt-2 border-t border-outline-variant">
+                            <div class="flex items-center gap-2" id="group-members-${group.group_id}"></div>
+                            <div class="text-right">
+                                <p class="font-micro-utility text-micro-utility text-outline uppercase">Total Spent</p>
+                                <p class="font-data-mono text-data-mono text-on-surface" id="group-spent-${group.group_id}">…</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            html += `
+                <button class="border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center p-card-padding hover:border-primary hover:bg-primary/5 transition-all group min-h-[220px]" onclick="openModal()">
+                    <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
+                        <span class="material-symbols-outlined text-primary scale-125">add_circle</span>
+                    </div>
+                    <p class="font-headline-sm text-headline-sm text-on-surface">Create New Group</p>
+                    <p class="font-label-sm text-label-sm text-outline mt-1">Start splitting with a new group</p>
+                </button>
+            `;
+
+            groupsContainer.innerHTML = html;
+
+            // fill in each card's real member count + total spent
+            groups.forEach(async g => {
+                try {
+                    const members = await apiCall(`/groups/${g.group_id}/members`);
+                    const metaEl = document.getElementById(`group-meta-${g.group_id}`);
+                    if (metaEl) metaEl.innerText = `${(members || []).length} member${(members || []).length === 1 ? '' : 's'}`;
+                    const memEl = document.getElementById(`group-members-${g.group_id}`);
+                    if (memEl) memEl.innerHTML = (members || []).slice(0, 3).map(m => `
+                        <div class="w-8 h-8 rounded-full border-2 border-surface-container bg-primary-container flex items-center justify-center text-on-primary-container font-micro-utility text-[10px]">${initials(m.name)}</div>
+                    `).join('');
+                } catch (e) {}
+                try {
+                    const summary = await apiCall(`/api/v1/analytics/group-summary?group_id=${g.group_id}`);
+                    const spentEl = document.getElementById(`group-spent-${g.group_id}`);
+                    if (spentEl) spentEl.innerText = `${Number(summary.total_spent || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                } catch (e) {}
+            });
+        }
+
+        function goToGroup(id, name) {
+            sessionStorage.setItem('currentGroupId', id);
+            sessionStorage.setItem('currentGroupName', name);
+            window.location.href = 'splitflow_pro_group_intelligence.html';
+        }
+
+        function openModal() {
+            const modal = document.getElementById('createGroupModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('createGroupModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            memberEmails = [];
+            document.getElementById('memberChips').innerHTML = '';
+        }
+
+        function addMemberChip() {
+            const input = document.getElementById('memberEmailInput');
+            const email = input.value.trim();
+            if (!email || memberEmails.includes(email)) return;
+            memberEmails.push(email);
+            input.value = '';
+            renderChips();
+        }
+
+        function removeMemberChip(email) {
+            memberEmails = memberEmails.filter(e => e !== email);
+            renderChips();
+        }
+
+        function renderChips() {
+            document.getElementById('memberChips').innerHTML = memberEmails.map(email => `
+                <span class="bg-surface-container-highest border border-outline-variant rounded-full px-3 py-1 text-xs flex items-center gap-2">
+                    ${email}
+                    <span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeMemberChip('${email.replace(/'/g, "\\'")}')">close</span>
+                </span>
+            `).join('');
+        }
+
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            const formData = new FormData(e.target);
+
+            btn.innerText = 'Creating...';
+            btn.disabled = true;
+
+            try {
+                const newGroup = await apiCall('/groups', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        group_name: formData.get('name'),
+                        currency: formData.get('currency'),
+                        created_by: currentUser.user_id
+                    })
+                });
+
+                // add each typed member email, if that account exists
+                for (const email of memberEmails) {
+                    try {
+                        const found = await apiCall(`/users/lookup?email=${encodeURIComponent(email)}`);
+                        if (found) {
+                            await apiCall(`/groups/${newGroup.group_id}/members`, {
+                                method: 'POST',
+                                body: JSON.stringify({ user_id: found.user_id })
+                            });
+                        }
+                    } catch (e) { console.warn(`Could not add ${email}:`, e.message); }
+                }
+
+                await fetchGroups();
+                closeModal();
+                e.target.reset();
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert('Could not create group: ' + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('profile-initials');
+            if (el) el.innerText = initials(currentUser.name);
+            fetchGroups();
+        });
+    </script>
+</body></html>

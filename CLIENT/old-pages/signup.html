@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — Expense Splitter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background: linear-gradient(135deg, #1a1c2b, #2d2f45);">
+
+<section class="center-page">
+  <h1 style="color:white;">💰 Expense Splitter</h1>
+  <p class="muted" style="color:#b8bcd0;">Split expenses. Settle smarter.</p>
+
+  <div class="card">
+    <h2>Create Account</h2>
+    <label class="field-label">Full name</label>
+    <input id="signupName" placeholder="Your name">
+    <label class="field-label">Email</label>
+    <input id="signupEmail" type="email" placeholder="you@example.com">
+    <label class="field-label">Password</label>
+    <input id="signupPassword" type="password" placeholder="••••••••">
+    <p id="signupError" class="error"></p>
+    <button onclick="signup()" style="width:100%;">Create Account</button>
+  </div>
+
+  <p class="muted" style="text-align:center; color:#b8bcd0;">Already have an account? <a class="link" href="index.html" style="color:#a29bfe;">Log in</a></p>
+</section>
+
+<script src="script.js"></script>
+<script>
+async function signup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const errorEl = document.getElementById('signupError');
+  errorEl.innerText = '';
+  if (!name || !email || !password) { errorEl.innerText = 'Fill in every field.'; return; }
+
+  try {
+    const user = await apiCall('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+    setCurrentUser(user);
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    errorEl.innerText = err.message;
+  }
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') signup(); });
+</script>
+</body>
+</html>

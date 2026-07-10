@@ -1,167 +1,393 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SplitFlow Pro - Secure Entry</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="/style.css" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "background": "#0f172a", // Slate-900 cosmic dark look
-                        "primary": "#3525cd",
-                        "primary-container": "#4f46e5",
-                        "on-primary-container": "#dad7ff",
-                        "secondary": "#565e74",
-                        "secondary-container": "#dae2fd",
-                        "on-secondary-container": "#5c647a",
-                        "surface": "#1e293b", // Slate-800
-                        "on-surface": "#f8fafc",
-                        "outline-variant": "#334155"
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Splitter</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-slate-950 text-slate-100 font-body-md antialiased min-h-screen flex flex-col justify-between overflow-x-hidden relative">
-
-    <!-- Ambient Grid Background -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0 opacity-40"></div>
-
-    <!-- Header / Navbar -->
-    <header class="w-full h-20 px-8 flex justify-between items-center relative z-10">
-        <div class="flex items-center gap-2.5">
-            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                <span class="material-symbols-outlined text-indigo-400">handshake</span> SplitFlow Pro
-            </h1>
-        </div>
+<body>
+  <!-- AUTH -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-badge">💸</div>
         <div>
-            <span class="text-[10px] font-bold text-indigo-400 tracking-widest uppercase bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
-                SECURE CONSOLE v4.2
-            </span>
+          <h1>Expense Splitter</h1>
+          <p>No more monthly hisab kitab.</p>
         </div>
-    </header>
+      </div>
 
-    <!-- Main Entry Card -->
-    <main class="flex-1 flex items-center justify-center p-6 relative z-10">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl relative space-y-6 animate-scale-in">
-            
-            <!-- Badge & Headers -->
-            <div class="text-center space-y-2">
-                <span class="text-indigo-400 font-bold tracking-wider text-[10px] uppercase">ENTERPRISE PROTOCOL</span>
-                <h2 class="text-2xl font-black text-white tracking-tight">Sign in to your Workspace</h2>
-                <p class="text-slate-400 text-xs max-w-xs mx-auto">Enter your credentials to sync spending, operational logs, and settlement models.</p>
-            </div>
+      <div id="loginPanel">
+        <div class="auth-kicker">Welcome back</div>
+        <h2>Split bills without the awkward math.</h2>
+        <p class="auth-copy">Login to manage shared bills, flat expenses, trips, and who owes who.</p>
 
-            <!-- Login Form -->
-            <form class="space-y-4" onsubmit="handleLogin(event)">
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Work Email</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 scale-90">mail</span>
-                        <input required id="login-email" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600" placeholder="sarah@company.com" type="email" value="sarah@company.com"/>
-                    </div>
-                </div>
-                
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 scale-90">lock</span>
-                        <input required id="login-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-12 py-2.5 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600" placeholder="••••••••" type="password" value="password"/>
-                        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors" onclick="togglePassword()">
-                            <span class="material-symbols-outlined scale-90" id="password-toggle-icon">visibility</span>
-                        </button>
-                    </div>
-                </div>
+        <div class="auth-form">
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="Enter your email" autocomplete="off" />
 
-                <div class="flex items-center justify-between text-xs font-semibold">
-                    <label class="flex items-center gap-2 cursor-pointer text-slate-400 select-none">
-                        <input class="bg-slate-950 border-slate-800 text-indigo-600 rounded focus:ring-0 focus:ring-offset-0" type="checkbox" checked/>
-                        <span>Remember this node</span>
-                    </label>
-                    <a href="#" class="text-indigo-400 hover:underline">Forgot credentials?</a>
-                </div>
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="new-password" />
 
-                <!-- Auth Action Button -->
-                <button type="submit" id="auth-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-600/10">
-                    <span class="material-symbols-outlined text-sm">vpn_key</span>
-                    <span>Authenticate Securely</span>
-                </button>
-            </form>
-
-            <!-- Sign Up Alternative Link -->
-            <div class="text-center pt-4 border-t border-slate-800">
-                <a href="/signup.html" class="text-xs text-slate-400 hover:text-white font-semibold transition-colors">
-                    Don't have an enterprise account? <span class="text-indigo-400 font-bold hover:underline">Sign up here</span>
-                </a>
-            </div>
-
-            <!-- Demo helper warning -->
-            <div class="p-3 bg-slate-950 border border-slate-800 rounded-lg text-center text-[10px] text-slate-500 font-mono-code leading-relaxed">
-                Developer Note: Default credentials populated. Press secure authenticate to inspect console dashboard.
-            </div>
+          <button class="primary-btn full" onclick="loginUser()">Login</button>
         </div>
+
+        <p class="switch-text">New here? <a href="#" onclick="showSignupPanel()">Create an account</a></p>
+        <p id="loginMessage" class="message"></p>
+      </div>
+
+      <div id="signupPanel" class="hidden">
+        <div class="auth-kicker">Create account</div>
+        <h2>Start splitting fairly.</h2>
+        <p class="auth-copy">Create your account to split rent, electricity, groceries and trips with your group.</p>
+
+        <div class="auth-form">
+          <label>Full name</label>
+          <input id="signupName" type="text" placeholder="Enter your full name" autocomplete="off" />
+
+          <label>Email</label>
+          <input id="signupEmail" type="email" placeholder="Enter your email" autocomplete="off" />
+
+          <label>Password</label>
+          <input id="signupPassword" type="password" placeholder="Create a password" autocomplete="new-password" />
+
+          <button class="primary-btn full" onclick="signupUser()">Create Account</button>
+        </div>
+
+        <p class="switch-text">Already have an account? <a href="#" onclick="showLoginPanel()">Login</a></p>
+        <p id="signupMessage" class="message"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="appScreen" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="logo-area">
+        <div class="logo-icon">💸</div>
+        <div>
+          <h2>Expense<br />Splitter</h2>
+          <p>FAIR SHARED BILLS</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="dashboardView" onclick="showView('dashboardView', this)">🏠 Dashboard</button>
+        <button class="nav-item" data-view="groupsView" onclick="showView('groupsView', this)">👥 My Groups</button>
+        <button class="nav-item" data-view="billView" onclick="showView('billView', this)">➕ Add Bill</button>
+        <button class="nav-item" data-view="owesView" onclick="showView('owesView', this)">🤝 Who Owes Who</button>
+        <button class="nav-item" data-view="budgetsView" onclick="showView('budgetsView', this)">📌 Budgets</button>
+        <button class="nav-item" data-view="activityView" onclick="showView('activityView', this)">🔔 Activity</button>
+        <button class="nav-item" data-view="profileView" onclick="showView('profileView', this)">👤 Profile</button>
+      </nav>
+
+      <div class="sidebar-user">
+        <div id="sidebarInitial" class="avatar">U</div>
+        <div>
+          <strong id="sidebarName">User</strong>
+          <p id="sidebarEmail">user@email.com</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h1 id="pageHeading">Dashboard</h1>
+          <p id="pageSubtitle">Welcome back, <span id="welcomeName">User</span>. Let’s sort this month’s shared bills.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="soft-btn" onclick="showView('billView')">+ Add Bill</button>
+          <button class="soft-btn" onclick="showView('activityView')">🔔</button>
+          <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+      </header>
+
+      <!-- DASHBOARD -->
+
+      <section id="dashboardView" class="view active-view">
+      
+      
+        <div class="hero-panel">
+
+          <div>
+            <p class="kicker">No more manual hisab kitab</p>
+            <h2>Add a bill once. We calculate who owes who.</h2>
+            <p>Perfect for flatmates, trips, groceries, rent, electricity and bills where not everyone uses the same things.</p>
+          </div>
+          <button class="primary-btn" onclick="showView('billView')">Add Shared Bill</button>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-card">
+            <span class="metric-icon mint">💰</span>
+            <p>Total Shared Bills</p>
+            <h2 id="dashTotalSpent">0.00</h2>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon violet">👥</span>
+            <p>Active Groups</p>
+            <h2 id="dashGroupsCount">0</h2>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon coral">🧾</span>
+            <p>Bills Added</p>
+            <h2 id="dashExpensesCount">0</h2>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon amber">🤝</span>
+            <p>Pending Settles</p>
+            <h2 id="dashPendingCount">0</h2>
+          </div>
+        </div>
+
+        <div class="two-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent Shared Bills</h3>
+              <button class="text-btn" onclick="showView('billView')">Add new</button>
+            </div>
+            <div id="recentExpenses" class="list-stack"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Who needs to settle?</h3>
+              <button class="text-btn" onclick="showView('owesView')">View all</button>
+            </div>
+            <div id="dashboardDebts" class="list-stack"></div>
+          </div>
+        </div>
+        <div class="card spending-overview-card">
+  <div class="section-heading">
+    <div>
+      <h2>Spending Overview</h2>
+      <p>Category-wise spending for the selected group.</p>
+    </div>
+  </div>
+
+  <div class="spending-overview-layout">
+    <div class="donut-box">
+      <div id="actualSpendingDonut" class="css-donut-chart"></div>
+      <p id="actualSpendingTotal" class="donut-total">Loading...</p>
+    </div>
+
+    <div id="actualSpendingLegend" class="chart-legend-list">
+      <div class="empty-card">Loading spending data...</div>
+    </div>
+  </div>
+</div>
+      </section>
+      
+
+      <!-- GROUPS -->
+      <section id="groupsView" class="view">
+        <div class="two-grid">
+          <div class="panel">
+            <h3>Create a Group</h3>
+            <p class="muted section-note">Make a group for your flat, trip, family, or friends.</p>
+            <label>Group name</label>
+            <input id="groupName" type="text" placeholder="e.g. Flatmates, Europe Trip, Family Bills" />
+            <label>Currency</label>
+            <select id="groupCurrency">
+              <option value="AUD">AUD</option>
+              <option value="PKR">PKR</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
+            <button class="primary-btn full" onclick="createGroup()">Create Group</button>
+            <p id="groupMessage" class="message"></p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>My Groups</h3>
+              <button class="text-btn" onclick="loadGroups()">Refresh</button>
+            </div>
+            <div id="groupsList" class="card-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD BILL -->
+      <section id="billView" class="view">
+        <div class="workspace-header">
+          <div>
+            <p class="kicker">Current Group</p>
+            <h2 id="activeGroupName">Select a group</h2>
+            <p id="activeGroupCurrency" class="muted"></p>
+          </div>
+          <select id="activeGroupSelect" onchange="changeActiveGroup()"></select>
+        </div>
+
+        <div class="two-grid">
+          <div class="panel">
+            <h3>Group Members</h3>
+            <p class="muted section-note">Add people by email. They need to have an account first.</p>
+            <div class="inline-form">
+              <input id="memberEmail" type="email" placeholder="Member email" />
+              <button class="primary-btn" onclick="addMemberByEmail()">Add</button>
+            </div>
+            <p id="memberMessage" class="message"></p>
+            <div id="membersList" class="list-stack"></div>
+          </div>
+
+          <div class="panel bill-panel">
+            <h3>Add Shared Bill</h3>
+            <p class="muted section-note">Enter the bill details. The app calculates the split automatically.</p>
+
+            <label>Bill name</label>
+            <input id="expenseDescription" type="text" placeholder="e.g. Electricity bill, groceries, dinner" />
+
+            <label>Total amount</label>
+            <input id="expenseAmount" type="number" placeholder="e.g. 8200" oninput="previewSplit()" />
+
+            <div class="form-row">
+              <div>
+                <label>Paid by</label>
+                <select id="paidBySelect" onchange="previewSplit()"></select>
+              </div>
+              <div>
+                <label>Category</label>
+                <select id="expenseCategory"></select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <label>Currency</label>
+                <select id="expenseCurrency">
+                  <option value="AUD">AUD</option>
+                  <option value="PKR">PKR</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                </select>
+              </div>
+              <div>
+                <label>Split type</label>
+                <select id="splitMethod" onchange="onSplitMethodChange()">
+                  <option value="equal">Equal split</option>
+                  <option value="exclude">Exclude someone</option>
+                  <option value="ac_usage">Electricity / AC usage split</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="acOptions" class="soft-box hidden">
+              <label>Base usage percentage</label>
+              <input id="acBasePercent" type="number" value="60" min="0" max="100" oninput="previewSplit()" />
+              <p class="muted">Example: 60% base usage split between everyone, 40% AC usage split only between AC users.</p>
+              <h4>Who used AC?</h4>
+              <div id="acUsersList" class="check-grid"></div>
+            </div>
+
+
+            <div>
+  <label for="billDueDate">Last date to pay</label>
+  <input type="date" id="billDueDate">
+</div>
+
+<div>
+  <label for="billPaymentMethod">Payment method</label>
+  <select id="billPaymentMethod">
+    <option value="Cash">Cash</option>
+    <option value="Bank Transfer">Bank Transfer</option>
+    <option value="EasyPaisa">EasyPaisa</option>
+    <option value="JazzCash">JazzCash</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+            <div class="soft-box">
+              <h4>Who is included in this bill?</h4>
+              <div id="includedMembersList" class="check-grid"></div>
+            </div>
+
+            <button class="secondary-btn full" onclick="previewSplit()">Calculate Split</button>
+            <div id="splitPreview" class="preview-box"></div>
+            <button class="primary-btn full" onclick="saveExpenseWithSplit()">Save Bill</button>
+            <p id="expenseMessage" class="message"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Saved Bills</h3>
+            <button class="text-btn" onclick="loadExpenses()">Refresh</button>
+          </div>
+          <div id="expensesList" class="list-stack"></div>
+        </div>
+      </section>
+
+      <!-- WHO OWES WHO -->
+      <section id="owesView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Who Owes Who</h3>
+              <p class="muted">Calculated from bills added in this browser session and any backend debt records.</p>
+            </div>
+            <button class="text-btn" onclick="loadDebts()">Refresh</button>
+          </div>
+          <div id="debtsList" class="list-stack"></div>
+        </div>
+      </section>
+
+      <!-- BUDGETS -->
+      <section id="budgetsView" class="view">
+        <div class="two-grid">
+          <div class="panel">
+            <h3>Set Monthly Limit</h3>
+            <p class="muted section-note">Use budgets for things like groceries, electricity and eating out.</p>
+            <label>Category</label>
+            <select id="budgetCategory"></select>
+            <label>Month</label>
+            <input id="budgetMonth" type="number" placeholder="7" />
+            <label>Year</label>
+            <input id="budgetYear" type="number" placeholder="2026" />
+            <label>Limit</label>
+            <input id="budgetLimit" type="number" placeholder="e.g. 500" />
+            <button class="primary-btn full" onclick="createBudget()">Save Budget</button>
+            <p id="budgetMessage" class="message"></p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Budgets</h3>
+              <button class="text-btn" onclick="loadBudgets()">Refresh</button>
+            </div>
+            <div id="budgetsList" class="list-stack"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section id="activityView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Activity</h3>
+            <button class="text-btn" onclick="loadNotifications()">Refresh</button>
+          </div>
+          <div id="notificationsList" class="list-stack"></div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="profileView" class="view">
+        <div class="panel narrow-panel">
+          <h3>Profile</h3>
+          <label>Name</label>
+          <input id="profileName" type="text" placeholder="Name" />
+          <label>Email</label>
+          <input id="profileEmail" type="email" placeholder="Email" />
+          <button class="primary-btn" onclick="updateProfile()">Update Profile</button>
+          <p id="profileMessage" class="message"></p>
+        </div>
+      </section>
     </main>
-
-    <!-- Footer -->
-    <footer class="w-full h-16 px-8 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-600 relative z-10 gap-2">
-        <p>© 2026 SplitFlow Pro Enterprise Security Suite. Relational Database Linked.</p>
-        <div class="flex gap-4">
-            <a class="hover:text-slate-400" href="#">Privacy Policy</a>
-            <a class="hover:text-slate-400" href="#">Terms of Use</a>
-        </div>
-    </footer>
-
-    <!-- Authenticate script -->
-    <script>
-        function togglePassword() {
-            const passInput = document.getElementById('login-password');
-            const icon = document.getElementById('password-toggle-icon');
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                icon.innerText = 'visibility_off';
-            } else {
-                passInput.type = 'password';
-                icon.innerText = 'visibility';
-            }
-        }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const btn = document.getElementById('auth-btn');
-            btn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Synchronizing node...</span>
-            `;
-
-            // Hit the actual /api/login endpoint if it exists
-            fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: document.getElementById('login-email').value,
-                    pass: document.getElementById('login-password').value
-                })
-            })
-            .then(res => console.log('Successfully completed authentication against REST services'))
-            .catch(err => console.warn('REST API not running, signing in with offline persistent state.'))
-            .finally(() => {
-                setTimeout(() => {
-                    location.href = '/dashboard.html';
-                }, 800);
-            });
-        }
-    </script>
+  </section>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
