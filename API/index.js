@@ -4,10 +4,146 @@ const cors = require('cors');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
+
 const app = express();
 app.use(express.json());
 app.use(cors());
-//sign ip
+function roundMoney(value) {
+    return Math.round(Number(value) * 100) / 100;
+}
+
+function fixRoundingDifference(splits, totalAmount) {
+    const total = roundMoney(totalAmount);
+    const splitTotal = roundMoney(
+        splits.reduce((sum, split) => sum + Number(split.amount_owed), 0)
+    );
+
+    const difference = roundMoney(total - splitTotal);
+
+    if (splits.length > 0 && Math.abs(difference) > 0) {
+        splits[0].amount_owed = roundMoney(
+            Number(splits[0].amount_owed) + difference
+        );
+    }
+
+    return splits;
+}
+
+function calculateExpenseSplits({
+    totalAmount,
+    splitMethod,
+    includedMembers,
+    acUsers = [],
+    acBasePercent = 60,
+    customShares = [],
+    items = []
+}) {
+    const total = roundMoney(totalAmount);
+
+    if (!includedMembers || includedMembers.length === 0) {
+        throw new Error('At least one member must be included in the split.');
+    }
+
+    if (splitMethod === 'equal' || splitMethod === 'exclude') {
+        const eachShare = roundMoney(total / includedMembers.length);
+
+        let splits = includedMembers.map(userId => ({
+            user_id: Number(userId),
+            amount_owed: eachShare
+        }));
+
+        return fixRoundingDifference(splits, total);
+    }
+
+    if (splitMethod === 'ac_usage') {
+        if (!acUsers || acUsers.length === 0) {
+            throw new Error('Please select at least one AC user.');
+        }
+
+        const basePercent = Number(acBasePercent || 60);
+        const acPercent = 100 - basePercent;
+
+        const baseAmount = roundMoney(total * (basePercent / 100));
+        const acAmount = roundMoney(total * (acPercent / 100));
+
+        const baseShare = roundMoney(baseAmount / includedMembers.length);
+        const acShare = roundMoney(acAmount / acUsers.length);
+
+        const acUserIds = acUsers.map(Number);
+
+        let splits = includedMembers.map(userId => {
+            const isAcUser = acUserIds.includes(Number(userId));
+
+            return {
+                user_id: Number(userId),
+                amount_owed: roundMoney(baseShare + (isAcUser ? acShare : 0))
+            };
+        });
+
+        return fixRoundingDifference(splits, total);
+    }
+
+    if (splitMethod === 'custom') {
+        if (!customShares || customShares.length === 0) {
+            throw new Error('Custom shares are required.');
+        }
+
+        let splits = customShares.map(item => ({
+            user_id: Number(item.user_id),
+            amount_owed: roundMoney(item.amount_owed)
+        }));
+
+        const customTotal = roundMoney(
+            splits.reduce((sum, split) => sum + Number(split.amount_owed), 0)
+        );
+
+        if (Math.abs(customTotal - total) > 0.01) {
+            throw new Error('Custom shares must add up to the total bill amount.');
+        }
+
+        return splits;
+    }
+
+    if (splitMethod === 'itemized') {
+        if (!items || items.length === 0) {
+            throw new Error('Items are required for itemized split.');
+        }
+
+        const userTotals = {};
+
+        for (const item of items) {
+            if (!item.claims || item.claims.length === 0) {
+                throw new Error(`Item "${item.item_name}" must have at least one claim.`);
+            }
+
+            for (const claim of item.claims) {
+                const userId = Number(claim.user_id);
+                const shareAmount = roundMoney(claim.share_amount);
+
+                userTotals[userId] = roundMoney((userTotals[userId] || 0) + shareAmount);
+            }
+        }
+
+        let splits = Object.keys(userTotals).map(userId => ({
+            user_id: Number(userId),
+            amount_owed: roundMoney(userTotals[userId])
+        }));
+
+        const itemizedTotal = roundMoney(
+            splits.reduce((sum, split) => sum + Number(split.amount_owed), 0)
+        );
+
+        if (Math.abs(itemizedTotal - total) > 0.01) {
+            throw new Error('Item claims must add up to the total bill amount.');
+        }
+
+        return splits;
+    }
+
+    throw new Error('Invalid split method.');
+}
+
+//sign up
 app.post('/auth/signup', async(req, res) =>{
     const {name, email, password} = req.body;
     try{
@@ -27,7 +163,7 @@ app.post('/auth/login', async(req,res) =>{
     try{
         const result = await pool.query('select * from users where email = $1', [email]);
         if(result.rows.length === 0){
-            return res.status(401).json({error: 'InVALID email or password '});
+            return res.status(401).json({error: 'Invalid email or password '});
         }
 
         const user  = result.rows[0];
@@ -95,14 +231,12 @@ app.put('/users/:id', async(req, res)=>{
 app.post('/groups', async (req, res) => {
     const { group_name, currency, created_by } = req.body;
     try {
-        // 1. create the group
+       
         const groupResult = await pool.query(
             'insert into groups(group_name, currency, created_by) values ($1, $2, $3) returning group_id, group_name, currency, created_by',
             [group_name, currency, created_by]
         );
         const newGroup = groupResult.rows[0];
-
-        // 2. add the creator as a member of their own group
         await pool.query(
             'insert into group_member(group_id, user_id) values ($1, $2)',
             [newGroup.group_id, created_by]
@@ -192,58 +326,71 @@ app.get('/groups/:id/members', async(req, res)=>{
         console.error(err);
         res.status(500).json({error: 'FAILED TO FETCH'})
     }
-})
-
-app.post('/groups/:id/members', async(req,res)=>{
-    const {id} = req.params;
-    const{user_id}= req.body;
-    try{
-        const result = await pool.query('INSERT into group_member (group_id, user_id) values ($1, $2) returning *',
-            [id, user_id]
-        );
-        res.status(201).json(result.rows[0]);
-
-    }catch(err){
-        console.error(err);
-        res.status(500).json({error: 'FAILED TO ADD'});
-    }
 });
-app.post('/groups/:id/members', async(req,res)=>{
-    const {id} = req.params;
-    const{user_id}= req.body;
-    try{
-        const result = await pool.query('INSERT into group_member (group_id, user_id) values ($1, $2) returning *',
-            [id, user_id]
-        );
+app.post('/groups/:id/members', async (req, res) => {
+    const { id } = req.params;
+    const { user_id } = req.body;
 
-        const groupResult = await pool.query('select group_name from groups where group_id = $1', [id]);
-        const groupName = groupResult.rows[0] ? groupResult.rows[0].group_name : 'a group';
-
-        const newUserResult = await pool.query('select name from users where user_id = $1', [user_id]);
-        const newUserName = newUserResult.rows[0] ? newUserResult.rows[0].name : 'Someone';
-
-        // notify the new member
-        await pool.query(
-            `insert into notification (user_id, message, is_read, created_at) values ($1, $2, false, current_timestamp)`,
-            [user_id, `You were added to "${groupName}"`]
-        );
-
-        // notify existing members that someone joined
-        const membersResult = await pool.query(
-            'select user_id from group_member where group_id = $1 and user_id != $2',
-            [id, user_id]
-        );
-        for (const m of membersResult.rows) {
-            await pool.query(
-                `insert into notification (user_id, message, is_read, created_at) values ($1, $2, false, current_timestamp)`,
-                [m.user_id, `${newUserName} joined "${groupName}"`]
-            );
+    try {
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is required' });
         }
 
-        res.status(201).json(result.rows[0]);
-    }catch(err){
+        const userResult = await pool.query(
+            'select user_id, name, email from users where user_id = $1',
+            [user_id]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const groupResult = await pool.query(
+            'select group_id, group_name from groups where group_id = $1',
+            [id]
+        );
+
+        if (groupResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        const alreadyMember = await pool.query(
+            'select * from group_member where group_id = $1 and user_id = $2',
+            [id, user_id]
+        );
+
+        if (alreadyMember.rows.length > 0) {
+            return res.status(409).json({
+                error: 'This user is already in this group'
+            });
+        }
+
+        const result = await pool.query(
+            'insert into group_member (group_id, user_id) values ($1, $2) returning *',
+            [id, user_id]
+        );
+
+        const newUser = userResult.rows[0];
+        const groupName = groupResult.rows[0].group_name;
+
+
+        res.status(201).json({
+            message: 'Member added successfully',
+            member: result.rows[0]
+        });
+
+    } catch (err) {
         console.error(err);
-        res.status(500).json({error: 'FAILED TO ADD'});
+
+        if (err.code === '23505') {
+            return res.status(409).json({
+                error: 'This user is already in this group'
+            });
+        }
+
+        res.status(500).json({
+            error: 'Failed to add member'
+        });
     }
 });
 
@@ -263,13 +410,65 @@ app.delete('/groups/:id/members/:userId', async (req, res) => {
         res.status(500).json({ error: 'Failed to remove member' });
     }
 });
-app.post('/groups/:id/expenses', async(req, res)=>{
-    const {id} = req.params;
-    const {user_id, category_id, group_id, description, total_amount, original_currency, exchange_rate, settle_by_deadline,
-        interest_rate, is_recurring, recurring_period, created_at
+app.post('/groups/:id/expenses', async (req, res) => {
+    const { id } = req.params;
+
+    const {
+        user_id,
+        category_id,
+        description,
+        total_amount,
+        original_currency,
+        exchange_rate,
+        settle_by_deadline,
+        is_recurring,
+        recurring_period,
+
+        split_method = 'equal',
+        included_members,
+        ac_users,
+        ac_base_percent,
+        custom_shares,
+        items
     } = req.body;
-    try{
-        const result = await pool.query( `INSERT INTO expenses
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        if (!user_id || !description || !total_amount) {
+            throw new Error('Paid by, description and total amount are required.');
+        }
+
+        let membersToSplit = included_members;
+
+        // If frontend does not send included_members, split between all group members
+        if (!membersToSplit || membersToSplit.length === 0) {
+            const membersResult = await client.query(
+                `select user_id from group_member where group_id = $1`,
+                [id]
+            );
+
+            membersToSplit = membersResult.rows.map(row => row.user_id);
+        }
+
+        if (!membersToSplit || membersToSplit.length === 0) {
+            throw new Error('This group has no members to split with.');
+        }
+
+        const splits = calculateExpenseSplits({
+            totalAmount: total_amount,
+            splitMethod: split_method,
+            includedMembers: membersToSplit,
+            acUsers: ac_users || [],
+            acBasePercent: ac_base_percent || 60,
+            customShares: custom_shares || [],
+            items: items || []
+        });
+
+        const expenseResult = await client.query(
+            `INSERT INTO expenses 
             (
                 group_id,
                 user_id,
@@ -279,31 +478,92 @@ app.post('/groups/:id/expenses', async(req, res)=>{
                 original_currency,
                 exchange_rate,
                 settle_by_deadline,
-                interest_rate,
                 is_recurring,
                 recurring_period
             )
-            VALUES
-            ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
             RETURNING *`,
             [
                 id,
                 user_id,
-                category_id,
+                category_id || null,
                 description,
                 total_amount,
-                original_currency,
-                exchange_rate,
-                settle_by_deadline,
-                interest_rate,
-                is_recurring,
-                recurring_period
-            ]);
-            res.status(201).json(result.rows[0]);
+                original_currency || 'AUD',
+                exchange_rate || 1,
+                settle_by_deadline || null,
+                is_recurring || false,
+                recurring_period || null
+            ]
+        );
 
-    }catch(err){
-         console.error(err);
-        res.status(500).json({error: 'FAILED TO ADD EXPENSE'});
+        const expense = expenseResult.rows[0];
+
+        // Save itemized bill data if split method is itemized
+        if (split_method === 'itemized' && items && items.length > 0) {
+            for (const item of items) {
+                const itemResult = await client.query(
+                    `INSERT INTO expense_item
+                    (expense_id, item_name, price)
+                    VALUES ($1, $2, $3)
+                    RETURNING item_id`,
+                    [
+                        expense.expense_id,
+                        item.item_name,
+                        item.price
+                    ]
+                );
+
+                const itemId = itemResult.rows[0].item_id;
+
+                for (const claim of item.claims) {
+                    await client.query(
+                        `INSERT INTO item_claim
+                        (item_id, user_id, share_amount)
+                        VALUES ($1, $2, $3)`,
+                        [
+                            itemId,
+                            claim.user_id,
+                            claim.share_amount
+                        ]
+                    );
+                }
+            }
+        }
+
+        // Save calculated split shares
+        for (const split of splits) {
+            await client.query(
+                `INSERT INTO expense_split
+                (expense_id, user_id, amount_owed)
+                VALUES ($1, $2, $3)`,
+                [
+                    expense.expense_id,
+                    split.user_id,
+                    split.amount_owed
+                ]
+            );
+        }
+
+        await client.query('COMMIT');
+
+        res.status(201).json({
+            expense,
+            split_method,
+            splits,
+            message: 'Expense added and split calculated successfully.'
+        });
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error(err);
+
+        res.status(400).json({
+            error: err.message || 'Failed to add expense.'
+        });
+
+    } finally {
+        client.release();
     }
 });
 
@@ -378,6 +638,35 @@ app.delete('/expenses/:id', async (req, res) => {
         res.status(500).json({ error: 'FAILED TO DELETE' });
     }
 });
+
+app.get('/expenses/:id/splits', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `select 
+                es.split_id,
+                es.expense_id,
+                es.user_id,
+                u.name,
+                u.email,
+                es.amount_owed
+             from expense_split es
+             join users u on u.user_id = es.user_id
+             where es.expense_id = $1
+             order by u.name`,
+            [id]
+        );
+
+        res.json(result.rows);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: 'Failed to fetch expense splits.'
+        });
+    }
+});
 //settlements
 app.post('/groups/:id/settlements', async (req, res) => {
     const { id } = req.params;
@@ -404,14 +693,143 @@ app.get('/groups/:id/settlements', async (req, res) => {
         res.status(500).json({ error: 'FAILED TO FETCH' });
     }
 });
+
 app.get('/groups/:id/debts/simplified', async (req, res) => {
     const { id } = req.params;
+
     try {
-        const result = await pool.query('SELECT * FROM debts_simplified WHERE group_id = $1', [id]);
-        res.json(result.rows);
+        const membersResult = await pool.query(
+            `select u.user_id, u.name, u.email
+             from users u
+             join group_member gm on gm.user_id = u.user_id
+             where gm.group_id = $1`,
+            [id]
+        );
+
+        const balances = {};
+
+        membersResult.rows.forEach(member => {
+            balances[member.user_id] = {
+                user_id: member.user_id,
+                name: member.name,
+                email: member.email,
+                balance: 0
+            };
+        });
+
+        // Add money paid by each person
+        const paidResult = await pool.query(
+            `select user_id, coalesce(sum(total_amount), 0) as total_paid
+             from expenses
+             where group_id = $1
+             group by user_id`,
+            [id]
+        );
+
+        paidResult.rows.forEach(row => {
+            if (balances[row.user_id]) {
+                balances[row.user_id].balance += Number(row.total_paid);
+            }
+        });
+
+        // Subtract each person's owed share
+        const owedResult = await pool.query(
+            `select es.user_id, coalesce(sum(es.amount_owed), 0) as total_owed
+             from expense_split es
+             join expenses e on e.expense_id = es.expense_id
+             where e.group_id = $1
+             group by es.user_id`,
+            [id]
+        );
+
+        owedResult.rows.forEach(row => {
+            if (balances[row.user_id]) {
+                balances[row.user_id].balance -= Number(row.total_owed);
+            }
+        });
+
+        // Apply settlements already made
+        const settlementsResult = await pool.query(
+            `select payer_id, receiver_id, coalesce(sum(amount), 0) as total
+             from settlement
+             where group_id = $1
+             group by payer_id, receiver_id`,
+            [id]
+        );
+
+        settlementsResult.rows.forEach(row => {
+            // payer has reduced their debt
+            if (balances[row.payer_id]) {
+                balances[row.payer_id].balance += Number(row.total);
+            }
+
+            // receiver has received money, so their receivable reduces
+            if (balances[row.receiver_id]) {
+                balances[row.receiver_id].balance -= Number(row.total);
+            }
+        });
+
+        const creditors = [];
+        const debtors = [];
+
+        Object.values(balances).forEach(person => {
+            const balance = roundMoney(person.balance);
+
+            if (balance > 0.01) {
+                creditors.push({
+                    user_id: person.user_id,
+                    name: person.name,
+                    email: person.email,
+                    balance
+                });
+            }
+
+            if (balance < -0.01) {
+                debtors.push({
+                    user_id: person.user_id,
+                    name: person.name,
+                    email: person.email,
+                    balance: Math.abs(balance)
+                });
+            }
+        });
+
+        creditors.sort((a, b) => b.balance - a.balance);
+        debtors.sort((a, b) => b.balance - a.balance);
+
+        const simplifiedDebts = [];
+
+        let i = 0;
+        let j = 0;
+
+        while (i < debtors.length && j < creditors.length) {
+            const debtor = debtors[i];
+            const creditor = creditors[j];
+
+            const amount = roundMoney(Math.min(debtor.balance, creditor.balance));
+
+            simplifiedDebts.push({
+                payer_id: debtor.user_id,
+                payer_name: debtor.name,
+                receiver_id: creditor.user_id,
+                receiver_name: creditor.name,
+                amount
+            });
+
+            debtor.balance = roundMoney(debtor.balance - amount);
+            creditor.balance = roundMoney(creditor.balance - amount);
+
+            if (debtor.balance <= 0.01) i++;
+            if (creditor.balance <= 0.01) j++;
+        }
+
+        res.json(simplifiedDebts);
+
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'FAILED TO CALCULATE' });
+        res.status(500).json({
+            error: 'Failed to calculate simplified debts.'
+        });
     }
 });
 //budgets
@@ -511,7 +929,7 @@ app.get('/api/v1/analytics/group-summary', async (req, res) => {
     try {
         const result = await pool.query(`
             select 
-                coalesce(sum(e.total_amount), 0) as total_spent,
+                coalesce(sum(e.total_amount), 0)+=10 as total_spent,
                 coalesce((select sum(amount) from settlement where group_id = $1), 0) as total_settled
             from expenses e where e.group_id = $1
         `, [group_id]);
@@ -613,7 +1031,7 @@ app.get('/api/v1/analytics/top-expenses', async (req, res) => {
 
 
 
-// 2) NEW: list categories (used by expense/budget dropdowns)
+
 app.get('/categories', async (req, res) => {
     try {
         const result = await pool.query('select * from category order by category_name');

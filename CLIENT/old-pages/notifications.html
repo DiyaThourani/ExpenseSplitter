@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — Expense Splitter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script src="script.js"></script>
+<script>
+const currentUser = requireLogin();
+if (currentUser) {
+  renderShell('notifications', 'Notifications');
+  document.getElementById('pageContent').innerHTML = `
+    <div class="page-heading"><h1>🔔 Notifications</h1></div>
+    <div id="notifList"></div>
+  `;
+  loadNotifications();
+}
+
+async function loadNotifications() {
+  const list = document.getElementById('notifList');
+  list.innerHTML = '<p class="muted">Loading...</p>';
+  try {
+    const notifs = await apiCall(`/notifications?user_id=${currentUser.user_id}`);
+    const arr = Array.isArray(notifs) ? notifs : [];
+    if (arr.length === 0) { list.innerHTML = '<div class="empty-state">No notifications.</div>'; return; }
+    list.innerHTML = arr.map(n => `
+      <div class="list-item">
+        <div>
+          ${!n.is_read ? '<span class="unread-dot"></span>' : ''}
+          <span>${n.message}</span>
+          <div class="meta">${new Date(n.created_at).toLocaleString()}</div>
+        </div>
+        ${!n.is_read ? `<button class="ghost small" onclick="markRead(${n.notification_id})">Mark read</button>` : ''}
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state">Could not load notifications: ${err.message}</div>`;
+  }
+}
+
+async function markRead(id) {
+  try {
+    await apiCall(`/notifications/${id}/read`, { method: 'PUT' });
+    loadNotifications();
+  } catch (err) { alert('Could not update: ' + err.message); }
+}
+</script>
+</body>
+</html>

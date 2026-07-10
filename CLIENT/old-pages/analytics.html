@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Expense Splitter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script src="script.js"></script>
+<script>
+const currentUser = requireLogin();
+const groupId = getActiveGroupId();
+if (currentUser && !groupId) window.location.href = 'groups.html';
+
+if (currentUser && groupId) {
+  renderShell('analytics', `Analytics — ${getActiveGroupName()}`);
+  document.getElementById('pageContent').innerHTML = `
+    <a class="back-link link" href="groupDetail.html">← Back to group</a>
+    <div class="page-heading"><h1>📊 Analytics</h1></div>
+
+    <div class="stat-grid4" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="stat-card2"><div class="stat-icon purple">💲</div><div><div class="s-label">Total Spending</div><div class="s-value" id="statTotal">—</div></div></div>
+      <div class="stat-card2"><div class="stat-icon blue">🏆</div><div><div class="s-label">Highest Spender</div><div class="s-value" id="statSpender" style="font-size:16px;">—</div></div></div>
+    </div>
+
+    <div class="panel-grid2">
+      <div class="panel"><div class="panel-head"><h2>Category Breakdown</h2></div><canvas id="categoryDonut" height="180"></canvas><div id="categoryLegend" style="margin-top:14px;"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Member Contributions</h2></div><canvas id="contribBar" height="180"></canvas></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:22px;">
+      <div class="panel-head"><h2>Monthly Spending</h2></div>
+      <canvas id="monthlyLine" height="110"></canvas>
+    </div>
+
+    <h3 class="section-label">Top 10 Expenses</h3>
+    <div class="card">
+      <table><thead><tr><th>Description</th><th>Amount</th><th>Date</th></tr></thead><tbody id="topExpensesBody"></tbody></table>
+    </div>
+
+    <h3 class="section-label">Budget Alerts</h3>
+    <div id="alertsList"></div>
+  `;
+
+  loadChartJs(() => loadAll());
+}
+
+async function loadAll() {
+  let totalSpent = 0;
+  try {
+    const summary = await apiCall(`/api/v1/analytics/group-summary?group_id=${groupId}`);
+    totalSpent = Number(summary.total_spent || 0);
+    document.getElementById('statTotal').innerText = totalSpent.toFixed(2);
+  } catch (e) { document.getElementById('statTotal').innerText = '—'; }
+
+  let categories = [];
+  try { categories = await apiCall(`/api/v1/analytics/category-breakdown?group_id=${groupId}`) || []; } catch (e) {}
+  renderDonut(categories, 'category_name', 'total');
+
+  let contributions = [];
+  try { contributions = await apiCall(`/api/v1/analytics/member-contributions?group_id=${groupId}`) || []; } catch (e) {}
+  document.getElementById('statSpender').innerText = contributions[0] ? contributions[0].name : '—';
+  renderBar(contributions, 'name', 'total_paid');
+
+  try {
+    const monthly = await apiCall(`/api/v1/analytics/monthly-spending?group_id=${groupId}`) || [];
+    const labels = monthly.map(r => new Date(r.month).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }));
+    const values = monthly.map(r => Number(r.total || 0));
+    renderLine(labels, values);
+  } catch (e) {
+    document.getElementById('monthlyLine').parentElement.innerHTML += `<div class="empty-state">${e.message}</div>`;
+  }
+
+  try {
+    const top = await apiCall(`/api/v1/analytics/top-expenses?group_id=${groupId}`) || [];
+    document.getElementById('topExpensesBody').innerHTML = top.length
+      ? top.map(e => `<tr><td>${e.description}</td><td>${Number(e.total_amount).toFixed(2)} ${e.original_currency}</td><td>${new Date(e.created_at).toLocaleDateString()}</td></tr>`).join('')
+      : '<tr><td colspan="3" class="muted">No expenses yet.</td></tr>';
+  } catch (e) {
+    document.getElementById('topExpensesBody').innerHTML = `<tr><td colspan="3" class="muted">${e.message}</td></tr>`;
+  }
+
+  try {
+    const alerts = await apiCall(`/api/v1/analytics/budget-alerts?group_id=${groupId}`) || [];
+    document.getElementById('alertsList').innerHTML = alerts.length
+      ? alerts.map(a => `<div class="list-item"><div class="title">${a.category_name || 'Category'}</div><div><span class="alert-badge">Near limit</span> ${Number(a.spent).toFixed(2)} / ${Number(a.monthly_limit).toFixed(2)}</div></div>`).join('')
+      : '<div class="empty-state">Nothing close to its limit.</div>';
+  } catch (e) {
+    document.getElementById('alertsList').innerHTML = `<div class="empty-state">${e.message}</div>`;
+  }
+}
+
+function renderDonut(rows, labelKey, valueKey) {
+  const labels = rows.map(r => r[labelKey]);
+  const values = rows.map(r => Number(r[valueKey]) || 0);
+  new Chart(document.getElementById('categoryDonut'), {
+    type: 'doughnut',
+    data: { labels: labels.length ? labels : ['No data'], datasets: [{ data: values.length ? values : [1], backgroundColor: CHART_COLORS, borderWidth: 0 }] },
+    options: { plugins: { legend: { display: false } }, cutout: '65%' }
+  });
+  const total = values.reduce((a, b) => a + b, 0) || 1;
+  document.getElementById('categoryLegend').innerHTML = labels.length ? labels.map((l, i) => `
+    <div class="legend-row">
+      <span class="legend-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>
+      <span class="l-name">${l}</span><span class="l-val">${values[i].toFixed(2)}</span>
+      <span class="l-pct">${((values[i]/total)*100).toFixed(1)}%</span>
+    </div>
+  `).join('') : '<div class="empty-state">No data yet.</div>';
+}
+
+function renderBar(rows, labelKey, valueKey) {
+  const labels = rows.map(r => r[labelKey]);
+  const values = rows.map(r => Number(r[valueKey]) || 0);
+  new Chart(document.getElementById('contribBar'), {
+    type: 'bar',
+    data: { labels: labels.length ? labels : ['No data'], datasets: [{ data: values.length ? values : [0], backgroundColor: '#6c5ce7', borderRadius: 6 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+function renderLine(labels, values) {
+  new Chart(document.getElementById('monthlyLine'), {
+    type: 'line',
+    data: { labels: labels.length ? labels : ['No data'], datasets: [{ data: values.length ? values : [0], borderColor: '#5b8def', backgroundColor: 'rgba(91,141,239,0.08)', fill: true, tension: 0.4 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+</script>
+</body>
+</html>

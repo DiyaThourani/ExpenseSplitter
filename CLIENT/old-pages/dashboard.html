@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Splitter - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <section class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-mark">💰</div>
+        <div>
+          <h2>Expense Splitter</h2>
+          <p>Smart Split System</p>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <a class="nav-link active" href="dashboard.html">⌂ Dashboard</a>
+        <a class="nav-link" href="groups.html">👥 Groups</a>
+        <a class="nav-link" href="groupDetail.html">🧾 Expenses</a>
+        <a class="nav-link" href="analytics.html">▣ Analytics</a>
+        <a class="nav-link" href="notifications.html">🔔 Notifications</a>
+      </nav>
+
+      <div class="sidebar-profile">
+        <div class="avatar">S</div>
+        <div>
+          <strong id="sidebarUserName">User</strong>
+          <p id="sidebarUserEmail">user@email.com</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div>
+          <h2>Welcome back, <span id="dashboardUserName">User</span> 👋</h2>
+          <p class="muted">Here is your expense summary</p>
+        </div>
+
+        <div class="top-actions">
+          <input type="text" placeholder="Search anything..." />
+          <button class="icon-btn">🔔</button>
+          <button class="primary-btn" onclick="window.location.href='groups.html'">+ New Group</button>
+          <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+      </header>
+
+      <section class="page active-page">
+
+        <!-- STAT CARDS -->
+        <div class="stats-grid dashboard-stats">
+          <div class="stat-card modern-stat">
+            <div class="stat-icon purple">₹</div>
+            <div>
+              <p class="stat-label">TOTAL SPENT</p>
+              <h1 id="dashTotalSpent">$0.00</h1>
+              <span class="positive">▲ Live from backend</span>
+            </div>
+          </div>
+
+          <div class="stat-card modern-stat">
+            <div class="stat-icon blue">👥</div>
+            <div>
+              <p class="stat-label">GROUPS</p>
+              <h1 id="dashGroupsCount">0</h1>
+              <span class="muted">Active groups</span>
+            </div>
+          </div>
+
+          <div class="stat-card modern-stat">
+            <div class="stat-icon green">🧾</div>
+            <div>
+              <p class="stat-label">EXPENSES</p>
+              <h1 id="dashExpensesCount">0</h1>
+              <span class="positive">This month</span>
+            </div>
+          </div>
+
+          <div class="stat-card modern-stat">
+            <div class="stat-icon orange">⇄</div>
+            <div>
+              <p class="stat-label">SETTLED</p>
+              <h1 id="dashTotalSettled">$0.00</h1>
+              <span class="muted">Total settlements</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHART AREA -->
+        <div class="dashboard-grid">
+          <div class="panel wide-panel">
+            <div class="panel-header">
+              <div>
+                <h3>Spending Overview</h3>
+                <p class="muted">Total expenses trend</p>
+              </div>
+              <select class="mini-select">
+                <option>This Month</option>
+                <option>This Year</option>
+              </select>
+            </div>
+
+            <h2 id="overviewTotal">$0.00</h2>
+            <p class="positive">▲ Updated from your latest group</p>
+
+            <div class="fake-line-chart">
+              <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+                <path class="chart-area" d="M0,150 C80,140 90,110 150,120 C210,130 250,60 320,90 C390,120 410,40 480,70 C540,100 560,80 600,45 L600,180 L0,180 Z"></path>
+                <path class="chart-line" d="M0,150 C80,140 90,110 150,120 C210,130 250,60 320,90 C390,120 410,40 480,70 C540,100 560,80 600,45"></path>
+              </svg>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Spending by Category</h3>
+              <select class="mini-select">
+                <option>This Month</option>
+              </select>
+            </div>
+
+            <div class="donut-wrap">
+              <div id="categoryDonut" class="donut-chart"></div>
+              <div id="dashboardCategoryList" class="category-list">
+                <p class="muted">No category data yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOWER CARDS -->
+        <div class="triple-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent Expenses</h3>
+              <a href="groupDetail.html">View all</a>
+            </div>
+            <div id="dashRecentExpenses">
+              <p class="muted">No recent expenses yet.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Top Groups</h3>
+              <a href="groups.html">View all</a>
+            </div>
+            <div id="dashTopGroups">
+              <p class="muted">No groups yet.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent Activity</h3>
+              <a href="notifications.html">View all</a>
+            </div>
+            <div id="dashRecentActivity">
+              <p class="muted">No activity yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BALANCES -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Balances</h3>
+            <a href="groupDetail.html">View settlements →</a>
+          </div>
+
+          <div id="dashBalances" class="balance-grid">
+            <p class="muted">Open a group to view balances.</p>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
